@@ -3,7 +3,7 @@ import React from "react";
 import "./OfficeMap.css";
 
 type Seat = {
-  id: string;
+  id: number;
   x: number;     // vänster i %
   y: number;     // topp i %
   width: number; // bredd i %
@@ -11,19 +11,22 @@ type Seat = {
 };
 
 const SEATS: Seat[] = [
-  { id: "1", x: 14.7, y: 14.7, width: 6.5, height: 6.5 },
-  { id: "2", x: 21.3, y: 14.7, width: 6.5, height: 6.5 },
-  { id: "3", x: 27.9, y: 14.7, width: 6.5, height: 6.5 },
-  { id: "4", x: 14.7, y: 29.9, width: 6.5, height: 6.5 },
-  { id: "5", x: 21.4, y: 29.9, width: 6.5, height: 6.5 },
-  { id: "6", x: 27.9, y: 29.9, width: 6.5, height: 6.5 },
+  { id: 1, x: 14.7, y: 14.7, width: 6.5, height: 6.5 },
+  { id: 2, x: 21.3, y: 14.7, width: 6.5, height: 6.5 },
+  { id: 3, x: 27.9, y: 14.7, width: 6.5, height: 6.5 },
+  { id: 4, x: 14.7, y: 29.9, width: 6.5, height: 6.5 },
+  { id: 5, x: 21.4, y: 29.9, width: 6.5, height: 6.5 },
+  { id: 6, x: 27.9, y: 29.9, width: 6.5, height: 6.5 },
+  { id: 7, x: 32, y: 39.3, width: 3.8, height: 11 },
+  { id: 8, x: 32, y: 51, width: 3.8, height: 11 },
+  { id: 9, x: 32, y: 62.5, width: 3.8, height: 11 },
   // fyll på med fler…
 ];
 
 interface OfficeMapProps {
-  onSeatClick: (seatId: string) => void;
+  onSeatClick: (seatId: number) => void;
   bookedSeats?: string[]; // t.ex. ["A1", "B1"]
-  mySeatId?: string;
+  mySeatId?: number;
 }
 
 export const OfficeMap: React.FC<OfficeMapProps> = ({
@@ -40,7 +43,7 @@ export const OfficeMap: React.FC<OfficeMapProps> = ({
       />
 
       {SEATS.map((seat) => {
-        const isBooked = bookedSeats.includes(seat.id);
+        const isBooked = bookedSeats.includes(seat.id.toString());
         const isMine = mySeatId === seat.id;
 
         return (
@@ -57,7 +60,8 @@ export const OfficeMap: React.FC<OfficeMapProps> = ({
               width: `${seat.width}%`,
               height: `${seat.height}%`,
             }}
-            onClick={() => onSeatClick(seat.id)}
+            onClick={() => !isBooked && onSeatClick(seat.id)}
+            disabled={isBooked}
             type="button"
           >
             {/* Om du vill visa label på kartan */}
