@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FilterChip } from "@entur/chip";
 import "./App.css";
 import { OfficeMap } from "./OfficeMap";
@@ -28,7 +28,6 @@ const [name, setName] = useState("");
     if (selectedDays.length === 0) {
       return; // Don't allow booking if no weekday is selected
     }
-    console.log(`Desk ${id} clicked on ${selectedDays}`);
     setDeskId(id);
     setOpen(true);
   };
@@ -43,25 +42,32 @@ const [name, setName] = useState("");
     if (selectedDays.includes(day)) {
       const filtered = selectedDays.filter((d) => d !== day);
       setSelectedDays(filtered);
-      console.log(`Deselected day: ${day}`);
-      console.log(filtered);
       return;
     }
     const newSelectedDays = [...selectedDays, day];
     setSelectedDays(newSelectedDays);
-    console.log(`Selected day: ${day}`);
-    console.log(newSelectedDays);
   };
 
   const handleReserve = () => {
-    console.log("selectedDays", selectedDays);
-    console.log("deskId", deskId);
     setReservations((prev) => {
       const updated = { ...prev };
       selectedDays.forEach((day) => {
         if (!updated[day.toLowerCase()]) {
           updated[day.toLowerCase()] = {};
         }
+        
+        // Check if user already has a booking for this day
+        const existingBooking = Object.entries(updated[day.toLowerCase()]).find(
+          ([, userName]) => userName === name
+        );
+        
+        // If user already has a booking, remove it first
+        if (existingBooking) {
+          const [existingDeskId] = existingBooking;
+          delete updated[day.toLowerCase()][Number(existingDeskId)];
+        }
+        
+        // Add the new booking
         if (deskId !== null) {
           updated[day.toLowerCase()][deskId] = name;
         }
@@ -95,17 +101,6 @@ const [name, setName] = useState("");
         onSeatClick={handleDeskClick}
         bookedSeats={bookedSeats}
       />
-
-      {/* {bookedSeats.length > 0 && (
-        <div className="reservations-list">
-          <h2>Reservations for {selectedDay}</h2>
-          <ul>
-            {bookedSeats.map(deskId => (
-              <li key={deskId}>{deskId}</li>
-            ))}
-          </ul>
-        </div>
-      )} */}
       <Modal
         open={isOpen}
         onDismiss={() => setOpen(false)}
