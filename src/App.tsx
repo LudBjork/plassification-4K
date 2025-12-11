@@ -18,7 +18,8 @@ const defaultReservations = {
 
 function App() {
   const [isOpen, setOpen] = useState(false);
-const [name, setName] = useState("");
+  const [isCancelModalOpen, setCancelModalOpen] = useState(false);
+  const [name, setName] = useState("");
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [reservations, setReservations] = useState<{
     [day: string]: { [deskId: number]: string };
@@ -78,6 +79,30 @@ const [name, setName] = useState("");
     setOpen(false);
   };
 
+  const handleCancelReservation = (day: string, deskId: number) => {
+    setReservations((prev) => {
+      const updated = { ...prev };
+      if (updated[day.toLowerCase()] && updated[day.toLowerCase()][deskId]) {
+        delete updated[day.toLowerCase()][deskId];
+      }
+      return updated;
+    });
+  };
+
+  const getAllReservations = () => {
+    const allReservations: Array<{ day: string; deskId: number; name: string }> = [];
+    Object.entries(reservations).forEach(([day, desks]) => {
+      Object.entries(desks).forEach(([deskId, userName]) => {
+        allReservations.push({
+          day: day.charAt(0).toUpperCase() + day.slice(1),
+          deskId: Number(deskId),
+          name: userName,
+        });
+      });
+    });
+    return allReservations;
+  };
+
   return (
     <div className="app-container">
       <h1>Desk Reservation</h1>
@@ -95,6 +120,12 @@ const [name, setName] = useState("");
             </FilterChip>
           ))}
         </div>
+      </div>
+
+      <div style={{ marginBottom: "1rem" }}>
+        <PrimaryButton onClick={() => setCancelModalOpen(true)}>
+          Cancel Reservations
+        </PrimaryButton>
       </div>
 
       <OfficeMap
@@ -122,6 +153,46 @@ const [name, setName] = useState("");
         />
         <PrimaryButton type="submit">OK</PrimaryButton>
         </form>
+      </Modal>
+
+      <Modal
+        open={isCancelModalOpen}
+        onDismiss={() => setCancelModalOpen(false)}
+        title="All Reservations"
+        size="medium"
+      >
+        <div>
+          {getAllReservations().length === 0 ? (
+            <p>No reservations found.</p>
+          ) : (
+            <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+              {getAllReservations().map((reservation, index) => (
+                <div
+                  key={index}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "0.5rem",
+                    borderBottom: "1px solid #ddd",
+                  }}
+                >
+                  <div>
+                    <strong>{reservation.name}</strong> - Desk {reservation.deskId} on {reservation.day}
+                  </div>
+                  <PrimaryButton
+                    size="small"
+                    onClick={() => {
+                      handleCancelReservation(reservation.day, reservation.deskId);
+                    }}
+                  >
+                    Cancel
+                  </PrimaryButton>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </Modal>
     </div>
   );
