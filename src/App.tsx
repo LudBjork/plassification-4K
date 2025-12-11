@@ -118,6 +118,7 @@ const [name, setName] = useState("");
           placeholder="Skriv inn navnet ditt her"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          autoFocus
         />
         <PrimaryButton type="submit">OK</PrimaryButton>
         </form>
